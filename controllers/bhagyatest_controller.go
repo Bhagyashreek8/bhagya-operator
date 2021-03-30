@@ -31,35 +31,35 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	cachev1 "github.com/example/bhagya-operator/api/v1"
+	cachev1 "github.com/Bhagyashreek8/bhagya-operator/api/v1"
 )
 
-// MemcachedReconciler reconciles a Memcached object
+// BhagyaTestReconciler reconciles a BhagyaTest object
 type BhagyaTestReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
 
-// +kubebuilder:rbac:groups=cache.example.com,resources=memcacheds,verbs=get;list;watch;create;update;patch;delete
-// +kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/status,verbs=get;update;patch
-// +kubebuilder:rbac:groups=cache.example.com,resources=memcacheds/finalizers,verbs=update
+// +kubebuilder:rbac:groups=cache.example.com,resources=bhagyas,verbs=get;list;watch;create;update;patch;delete
+// +kubebuilder:rbac:groups=cache.example.com,resources=bhagyas/status,verbs=get;update;patch
+// +kubebuilder:rbac:groups=cache.example.com,resources=bhagyas/finalizers,verbs=update
 // +kubebuilder:rbac:groups=apps,resources=deployments,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=core,resources=pods,verbs=get;list;
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
 // TODO(user): Modify the Reconcile function to compare the state specified by
-// the Memcached object against the actual cluster state, and then
+// the BhagyaTest object against the actual cluster state, and then
 // perform operations to make the cluster state reflect the state specified by
 // the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.7.0/pkg/reconcile
 func (r *BhagyaTestReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	log := r.Log.WithValues("memcached", req.NamespacedName)
+	log := r.Log.WithValues("bhagya", req.NamespacedName)
 
-	// Fetch the Memcached instance
+	// Fetch the BhagyaTest instance
 	bhagya := &cachev1.BhagyaTest{}
 	err := r.Get(ctx, req.NamespacedName, bhagya)
 	if err != nil {
@@ -107,12 +107,12 @@ func (r *BhagyaTestReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	// Update the Memcached status with the pod names
-	// List the pods for this memcached's deployment
+	// Update the BhagyaTest status with the pod names
+	// List the pods for this bhagya's deployment
 	podList := &corev1.PodList{}
 	listOpts := []client.ListOption{
 		client.InNamespace(bhagya.Namespace),
-		client.MatchingLabels(labelsForMemcached(bhagya.Name)),
+		client.MatchingLabels(labelsForBhagyaTest(bhagya.Name)),
 	}
 	if err = r.List(ctx, podList, listOpts...); err != nil {
 		log.Error(err, "Failed to list pods", "BhagyaTest.Namespace", bhagya.Namespace, "BhagyaTest.Name", bhagya.Name)
@@ -133,7 +133,7 @@ func (r *BhagyaTestReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	return ctrl.Result{}, nil
 }
 
-// deploymentForMemcached returns a memcached Deployment object
+// deploymentForBhagyaTest returns a bhagya Deployment object
 func (r *BhagyaTestReconciler) deploymentForBhagyaTest(m *cachev1.BhagyaTest) *appsv1.Deployment {
 	ls := labelsForBhagyaTest(m.Name)
 	replicas := m.Spec.Size
@@ -166,13 +166,13 @@ func (r *BhagyaTestReconciler) deploymentForBhagyaTest(m *cachev1.BhagyaTest) *a
 			},
 		},
 	}
-	// Set Memcached instance as the owner and controller
+	// Set BhagyaTest instance as the owner and controller
 	ctrl.SetControllerReference(m, dep, r.Scheme)
 	return dep
 }
 
-// labelsForMemcached returns the labels for selecting the resources
-// belonging to the given memcached CR name.
+// labelsForBhagyaTest returns the labels for selecting the resources
+// belonging to the given bhagya CR name.
 func labelsForBhagyaTest(name string) map[string]string {
 	return map[string]string{"app": "bhagya", "bhagya_cr": name}
 }

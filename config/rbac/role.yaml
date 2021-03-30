@@ -7,9 +7,9 @@ metadata:
   name: manager-role
 rules:
 - apiGroups:
-  - cache.example.com
+  - apps
   resources:
-  - bhagyatests
+  - deployments
   verbs:
   - create
   - delete
@@ -21,14 +21,33 @@ rules:
 - apiGroups:
   - cache.example.com
   resources:
-  - bhagyatests/finalizers
+  - bhagyas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.example.com
+  resources:
+  - bhagyas/finalizers
   verbs:
   - update
 - apiGroups:
   - cache.example.com
   resources:
-  - bhagyatests/status
+  - bhagyas/status
   verbs:
   - get
   - patch
   - update
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list

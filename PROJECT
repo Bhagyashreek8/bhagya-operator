@@ -4,7 +4,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: bhagya-operator
-repo: github.com/example/bhagya-operator
+repo: github.com/Bhagyashreek8/bhagya-operator
 resources:
 - api:
     crdVersion: v1
@@ -13,6 +13,6 @@ resources:
   domain: example.com
   group: cache
   kind: BhagyaTest
-  path: github.com/example/bhagya-operator/api/v1
+  path: github.com/Bhagyashreek8/bhagya-operator/api/v1
   version: v1
 version: "3"

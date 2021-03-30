@@ -31,7 +31,7 @@ type BhagyaTestSpec struct {
 	// Foo is an example field of BhagyaTest. Edit bhagyatest_types.go to remove/update
 	Foo string `json:"foo,omitempty"`
 	// +kubebuilder:validation:Minimum=0
-	// Size is the size of the memcached deployment
+	// Size is the size of the bhagya deployment
 	Size int32 `json:"size"`
 }
 
@@ -39,7 +39,7 @@ type BhagyaTestSpec struct {
 type BhagyaTestStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	// Nodes are the names of the memcached pods
+	// Nodes are the names of the bhagyaF pods
 	Nodes []string `json:"nodes"`
 }
 

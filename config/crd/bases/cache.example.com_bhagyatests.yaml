@@ -41,7 +41,7 @@ spec:
                   to remove/update
                 type: string
               size:
-                description: Size is the size of the memcached deployment
+                description: Size is the size of the bhagya deployment
                 format: int32
                 minimum: 0
                 type: integer
@@ -54,7 +54,7 @@ spec:
               nodes:
                 description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
                   of cluster Important: Run "make" to regenerate code after modifying
-                  this file Nodes are the names of the memcached pods'
+                  this file Nodes are the names of the bhagya pods'
                 items:
                   type: string
                 type: array

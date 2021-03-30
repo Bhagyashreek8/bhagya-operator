@@ -31,8 +31,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	cachev1 "github.com/example/bhagya-operator/api/v1"
-	"github.com/example/bhagya-operator/controllers"
+	cachev1 "github.com/Bhagyashreek8/bhagya-operator/api/v1"
+	"github.com/Bhagyashreek8/bhagya-operator/controllers"
 	//+kubebuilder:scaffold:imports
 )
 
