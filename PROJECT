@@ -1,0 +1,18 @@
+domain: example.com
+layout: go.kubebuilder.io/v3
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: bhagya-operator
+repo: github.com/example/bhagya-operator
+resources:
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: example.com
+  group: cache
+  kind: BhagyaTest
+  path: github.com/example/bhagya-operator/api/v1
+  version: v1
+version: "3"

@@ -1,0 +1,8 @@
+apiVersion: cache.example.com/v1
+kind: BhagyaTest
+metadata:
+  name: bhagyatest-sample
+spec:
+  # Add fields here
+  foo: bar
+  size: 3
