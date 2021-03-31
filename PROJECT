@@ -15,4 +15,13 @@ resources:
   kind: BhagyaTest
   path: github.com/Bhagyashreek8/bhagya-operator/api/v1
   version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: example.com
+  group: cache
+  kind: HelmChart
+  path: github.com/Bhagyashreek8/bhagya-operator/api/v1
+  version: v1
 version: "3"

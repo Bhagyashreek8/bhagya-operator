@@ -6,20 +6,20 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: bhagyatests.cache.example.com
+  name: helmcharts.cache.example.com
 spec:
   group: cache.example.com
   names:
-    kind: BhagyaTest
-    listKind: BhagyaTestList
-    plural: bhagyatests
-    singular: bhagyatest
+    kind: HelmChart
+    listKind: HelmChartList
+    plural: helmcharts
+    singular: helmchart
   scope: Namespaced
   versions:
   - name: v1
     schema:
       openAPIV3Schema:
-        description: BhagyaTest is the Schema for the bhagyatests API
+        description: HelmChart is the Schema for the helmcharts API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,32 +34,19 @@ spec:
           metadata:
             type: object
           spec:
-            description: BhagyaTestSpec defines the desired state of BhagyaTest
+            description: HelmChartSpec defines the desired state of HelmChart
             properties:
               foo:
-                description: Foo is an example field of BhagyaTest. Edit bhagyatest_types.go
-                  to remove/update
                 type: string
-              size:
-                description: Size is the size of the bhagya deployment
-                format: int32
-                minimum: 0
-                type: integer
-            required:
-            - size
-            type: object
-          status:
-            description: BhagyaTestStatus defines the observed state of BhagyaTest
-            properties:
-              nodes:
-                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
-                  of cluster Important: Run "make" to regenerate code after modifying
-                  this file Nodes are the names of the bhagya pods'
+              items:
                 items:
                   type: string
                 type: array
             required:
-            - nodes
+            - items
+            type: object
+          status:
+            description: HelmChartStatus defines the observed state of HelmChart
             type: object
         type: object
     served: true

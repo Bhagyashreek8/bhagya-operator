@@ -23,48 +23,49 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
-// BhagyaTestSpec defines the desired state of BhagyaTest
-type BhagyaTestSpec struct {
+// HelmChartSpec defines the desired state of HelmChart
+type HelmChartSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of BhagyaTest. Edit bhagyatest_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
-	// +kubebuilder:validation:Minimum=0
-	// Size is the size of the bhagya deployment
-	Size int32 `json:"size"`
+	// Foo is an example field of HelmChart. Edit helmchart_types.go to remove/update
+	//Foo string `json:"foo,omitempty"`
+	Repo_Name     string   `json:"repo_name"`
+	Repo_Url      string   `json:"repo_url"`
+	Chart_Name    string   `json:"chart_name"`
+	Chart_Version string   `json:"chart_version,omitempty"`
+	Namespace     string   `json:"namespace,omitempty"`
+	Params        []string `json:"params, omitempty"`
 }
 
-// BhagyaTestStatus defines the observed state of BhagyaTest
-type BhagyaTestStatus struct {
+// HelmChartStatus defines the observed state of HelmChart
+type HelmChartStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	// Nodes are the names of the bhagya pods
-	Nodes []string `json:"nodes"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
 
-// BhagyaTest is the Schema for the bhagyatests API
+// HelmChart is the Schema for the helmcharts API
 // +kubebuilder:subresource:status
-type BhagyaTest struct {
+type HelmChart struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   BhagyaTestSpec   `json:"spec,omitempty"`
-	Status BhagyaTestStatus `json:"status,omitempty"`
+	Spec   HelmChartSpec   `json:"spec,omitempty"`
+	Status HelmChartStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// BhagyaTestList contains a list of BhagyaTest
-type BhagyaTestList struct {
+// HelmChartList contains a list of HelmChart
+type HelmChartList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []BhagyaTest `json:"items"`
+	Items           []HelmChart `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&BhagyaTest{}, &BhagyaTestList{})
+	SchemeBuilder.Register(&HelmChart{}, &HelmChartList{})
 }

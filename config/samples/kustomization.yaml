@@ -1,4 +1,5 @@
 ## Append samples you want in your CSV to this file as resources ##
 resources:
 - cache_v1_bhagyatest.yaml
+- cache_v1_helmchart.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

@@ -1,0 +1,18 @@
+apiVersion: cache.example.com/v1
+kind: HelmChart
+metadata:
+  name: aws-ebs-csi-driver
+spec:
+  helm-repo-name: aws-ebs-csi-driver
+  helm-repo-url: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
+  helm-chart-name: aws-ebs-csi-driver
+  helm-chart-version: ""
+  namespace: kube-system
+  params:
+    - name: enableVolumeScheduling
+      value: true
+    - name: enableVolumeResizing
+      value: true
+    - name: enableVolumeSnapshot
+      value: true
+

@@ -154,7 +154,7 @@ func (r *BhagyaTestReconciler) deploymentForBhagyaTest(m *cachev1.BhagyaTest) *a
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:   "bhagya:1.4.36-alpine",
+						Image:   "bhagyak1/bhagya-test:01",
 						Name:    "bhagya",
 						Command: []string{"bhagya", "-m=64", "-o", "modern", "-v"},
 						Ports: []corev1.ContainerPort{{
