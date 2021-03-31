@@ -35,7 +35,7 @@ type HelmChartSpec struct {
 	Chart_Name    string   `json:"chart_name"`
 	Chart_Version string   `json:"chart_version,omitempty"`
 	Namespace     string   `json:"namespace,omitempty"`
-	Params        []string `json:"params, omitempty"`
+	Params        []string `json:"params,omitempty"`
 }
 
 // HelmChartStatus defines the observed state of HelmChart
