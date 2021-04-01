@@ -30,12 +30,12 @@ type HelmChartSpec struct {
 
 	// Foo is an example field of HelmChart. Edit helmchart_types.go to remove/update
 	//Foo string `json:"foo,omitempty"`
-	Repo_Name     string   `json:"repo_name"`
-	Repo_Url      string   `json:"repo_url"`
-	Chart_Name    string   `json:"chart_name"`
-	Chart_Version string   `json:"chart_version,omitempty"`
-	Namespace     string   `json:"namespace,omitempty"`
-	Params        []string `json:"params,omitempty"`
+	Repo_Name     string            `json:"repo_name"`
+	Repo_Url      string            `json:"repo_url"`
+	Chart_Name    string            `json:"chart_name"`
+	Chart_Version string            `json:"chart_version,omitempty"`
+	Namespace     string            `json:"namespace,omitempty"`
+	Params        map[string]string `json:"params,omitempty"`
 }
 
 // HelmChartStatus defines the observed state of HelmChart

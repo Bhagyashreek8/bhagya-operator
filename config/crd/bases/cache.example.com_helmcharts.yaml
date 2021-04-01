@@ -43,9 +43,9 @@ spec:
               namespace:
                 type: string
               params:
-                items:
+                additionalProperties:
                   type: string
-                type: array
+                type: object
               repo_name:
                 description: Foo is an example field of HelmChart. Edit helmchart_types.go
                   to remove/update Foo string `json:"foo,omitempty"`
