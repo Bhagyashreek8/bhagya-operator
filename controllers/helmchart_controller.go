@@ -83,7 +83,7 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	chart_name := helmchart.Spec.Chart_Name
 	repo_url := helmchart.Spec.Repo_Url
 	chart_version := helmchart.Spec.Chart_Version
-	params := helmchart.Spec.Params
+	params := helmchart.Spec.Parameters
 
 	var namespace = ""
 
@@ -101,16 +101,18 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	fmt.Println("params ", params)
 	if len(params) > 0 {
-		for k, v := range params {
-			helm_install_cmd = helm_install_cmd + " --set " + k + "=" + v
+		for i := range params {
+			helm_install_cmd = helm_install_cmd + " --set " + params[i].Name + "=" + params[i].Value
 		}
 	}
 
 	if chart_version != "" {
 		helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name + " --version " + chart_version
+	} else {
+		helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name
 	}
 
-	fmt.Println("Final helm install commad ")
+	fmt.Println("Final helm install command ")
 	fmt.Println(helm_install_cmd)
 
 	_, outStr, outErr := ExecuteCommand(repo_add_cmd)
@@ -236,32 +238,6 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							ContainerPort: 11211,
 							Name:          "helmchart",
 						}},
-						Env: []corev1.EnvVar{
-							{
-								Name:  "repo_name",
-								Value: m.Spec.Repo_Name,
-							},
-							{
-								Name:  "chart_name",
-								Value: m.Spec.Chart_Name,
-							},
-							{
-								Name:  "repo_url",
-								Value: m.Spec.Repo_Url,
-							},
-							{
-								Name:  "params",
-								Value: m.Spec.Params,
-							},
-							{
-								Name:  "namespcae",
-								Value: m.Spec.Namespace,
-							},
-							{
-								Name:  "chart_version",
-								Value: m.Spec.Chart_Version,
-							},
-						},
 					}},
 				},
 			},

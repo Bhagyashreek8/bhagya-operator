@@ -78,14 +78,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err = (&controllers.BhagyaTestReconciler{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("BhagyaTest"),
-		Scheme: mgr.GetScheme(),
-	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "BhagyaTest")
-		os.Exit(1)
-	}
+	//if err = (&controllers.BhagyaTestReconciler{
+	//	Client: mgr.GetClient(),
+	//	Log:    ctrl.Log.WithName("controllers").WithName("BhagyaTest"),
+	//	Scheme: mgr.GetScheme(),
+	//}).SetupWithManager(mgr); err != nil {
+	//	setupLog.Error(err, "unable to create controller", "controller", "BhagyaTest")
+	//	os.Exit(1)
+	//}
 	if err = (&controllers.HelmChartReconciler{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("HelmChart"),

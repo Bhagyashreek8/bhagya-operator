@@ -9,10 +9,10 @@ spec:
   helm-chart-version: ""
   namespace: kube-system
   params:
-    - name: enableVolumeScheduling
-      value: true
-    - name: enableVolumeResizing
-      value: true
-    - name: enableVolumeSnapshot
-      value: true
+#    - name: "enableVolumeScheduling"
+#     value: "false"
+    - name: "enableVolumeResizing"
+      value: "false"
+#    - name: "enableVolumeSnapshot"
+#      value: "false"
 

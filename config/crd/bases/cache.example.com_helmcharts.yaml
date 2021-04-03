@@ -36,26 +36,31 @@ spec:
           spec:
             description: HelmChartSpec defines the desired state of HelmChart
             properties:
-              chart_name:
+              helm-chart-name:
                 type: string
-              chart_version:
+              helm-chart-version:
+                type: string
+              helm-repo-name:
+                description: Foo is an example field of HelmChart. Edit helmchart_types.go
+                  to remove/update Foo string `json:"foo,omitempty"`
+                type: string
+              helm-repo-url:
                 type: string
               namespace:
                 type: string
               params:
-                additionalProperties:
-                  type: string
-                type: object
-              repo_name:
-                description: Foo is an example field of HelmChart. Edit helmchart_types.go
-                  to remove/update Foo string `json:"foo,omitempty"`
-                type: string
-              repo_url:
-                type: string
+                items:
+                  properties:
+                    name:
+                      type: string
+                    value:
+                      type: string
+                  type: object
+                type: array
             required:
-            - chart_name
-            - repo_name
-            - repo_url
+            - helm-chart-name
+            - helm-repo-name
+            - helm-repo-url
             type: object
           status:
             description: HelmChartStatus defines the observed state of HelmChart
