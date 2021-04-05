@@ -17,9 +17,20 @@ COPY controllers/ controllers/
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go
 FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 WORKDIR /
-RUN echo $pwd && ls -als
+RUN   microdnf update && microdnf install -y curl bash tar gzip
+#shadow-utils \
+#&& adduser -r -u 1000 -g 0 /
+RUN   curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kubectl && \
+      chmod +x ./kubectl &&  mv ./kubectl /usr/local/bin/kubectl
+RUN   curl -LO https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz && tar -zxvf helm-v3.5.0-linux-amd64.tar.gz && \
+      chmod +x linux-amd64/helm && mv linux-amd64/helm /usr/local/bin/helm
+
 COPY --from=builder /workspace/manager .
 
 RUN chmod 755 /manager
+
+USER root
+
+RUN cd / && mkdir -p .config/helm
 
 ENTRYPOINT ["/manager"]

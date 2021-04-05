@@ -214,6 +214,8 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 	//repo_url := m.Spec.Repo_Url
 	//chart_version := m.Spec.Chart_Version
 	//params := m.Spec.Params
+	user := int64(2121)
+	group := int64(2121)
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -231,13 +233,17 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				},
 				Spec: corev1.PodSpec{
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/bhagya-test:02",
+						Image:           "bhagyak1/bhagya-test:08",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
 							ContainerPort: 11211,
 							Name:          "helmchart",
 						}},
+						SecurityContext: &corev1.SecurityContext{
+							RunAsUser:  &user,
+							RunAsGroup: &group,
+						},
 					}},
 				},
 			},

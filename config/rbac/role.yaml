@@ -21,7 +21,7 @@ rules:
 - apiGroups:
   - cache.example.com
   resources:
-  - bhagyatests
+  - bhagyas
   verbs:
   - create
   - delete
@@ -33,13 +33,13 @@ rules:
 - apiGroups:
   - cache.example.com
   resources:
-  - bhagyatests/finalizers
+  - bhagyas/finalizers
   verbs:
   - update
 - apiGroups:
   - cache.example.com
   resources:
-  - bhagyatests/status
+  - bhagyas/status
   verbs:
   - get
   - patch
