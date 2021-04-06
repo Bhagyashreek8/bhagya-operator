@@ -12,7 +12,7 @@ metadata:
 priority: 0
 defaultAddCapabilities: []
 allowedCapabilities: []
-#allowHostDirVolumePlugin: true
+allowHostDirVolumePlugin: true
 allowHostIPC: false
 allowHostPID: false
 allowHostPorts: false
@@ -96,6 +96,13 @@ rules:
     - patch
     - update
     - watch
+- apiGroups:
+    - "security.openshift.io"
+  resources:
+    - securitycontextconstraints
+  verbs:
+    - get
+    - create
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
