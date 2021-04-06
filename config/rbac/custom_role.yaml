@@ -1,0 +1,112 @@
+#apiVersion: v1
+#kind: ServiceAccount
+#metadata:
+#  name: controller-manager
+#  namespace: system
+
+---
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: scc
+priority: 0
+defaultAddCapabilities: []
+allowedCapabilities: []
+#allowHostDirVolumePlugin: true
+allowHostIPC: false
+allowHostPID: false
+allowHostPorts: false
+allowHostNetwork: true
+allowPrivilegedContainer: false
+allowPrivilegeEscalation: true
+requiredDropCapabilities:
+  - KILL
+  - MKNOD
+  - SETUID
+  - SETGID
+readOnlyRootFilesystem: false
+runAsUser:
+  type: RunAsAny
+seLinuxContext:
+  type: RunAsAny
+fsGroup:
+  type: RunAsAny
+supplementalGroups:
+  type: RunAsAny
+users:
+  - system:serviceaccount:bhagya-operator-system:bhagya-operator-controller-manager
+groups: []
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: role
+rules:
+- apiGroups:
+    - apps
+  resources:
+    - deployments
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - cache.example.com
+  resources:
+    - helmcharts
+    - pods
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - cache.example.com
+  resources:
+    - helmcharts/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - cache.example.com
+  resources:
+    - helmcharts/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - ""
+  resources:
+    - helmcharts
+    - pods
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: role
+subjects:
+  - kind: ServiceAccount
+    name: controller-manager
+    namespace: system

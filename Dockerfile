@@ -32,5 +32,6 @@ RUN chmod 755 /manager
 USER root
 
 RUN cd / && mkdir -p .config/helm
+RUN chmod 777 .config/helm
 
 ENTRYPOINT ["/manager"]

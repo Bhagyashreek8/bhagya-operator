@@ -232,8 +232,9 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
+					ServiceAccountName: "bhagya-operator-controller-manager",
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/bhagya-test:08",
+						Image:           "bhagyak1/bhagya-test:02",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
