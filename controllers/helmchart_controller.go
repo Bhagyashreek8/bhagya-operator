@@ -234,9 +234,11 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 		namespace = "kube-system"
 	}
 
-	user := int64(1000)
-	group := int64(1000)
+	//user := int64(2121)
+	rootuser := int64(0)
+	//group := int64(2121)
 	varTrue := true
+	varFalse := false
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -254,8 +256,12 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				},
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "bhagya-manager",
+					//SecurityContext: &corev1.PodSecurityContext{
+					//	RunAsUser: &user,
+					//	FSGroup:   &group,
+					//},
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:02",
+						Image:           "bhagyak1/helmchart-installer:03",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
@@ -263,9 +269,12 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							Name:          "helmchart",
 						}},
 						SecurityContext: &corev1.SecurityContext{
-							RunAsUser:    &user,
-							RunAsGroup:   &group,
-							RunAsNonRoot: &varTrue,
+							RunAsUser: &rootuser,
+							//RunAsGroup:   &group,
+							RunAsNonRoot:             &varFalse,
+							ReadOnlyRootFilesystem:   &varFalse,
+							Privileged:               &varFalse,
+							AllowPrivilegeEscalation: &varTrue,
 						},
 						Env: []corev1.EnvVar{
 							{

@@ -65,16 +65,15 @@ done
 echo "final helm install cmd"
 echo ${helm_install_command}
 
-##check if the plugin is already installed
-#set -x
-#helm ls -A --all | awk '{print $1}' | grep $SAT_CHART_NAME
-#if [ $? == 0 ]; then
-#  echo "chart already installed. please delete it and deploy the chart again";
-#  exit 1;
-#  set +x
-#else
-#  #helm_install_command="${helm_install_command} --debug"
-#  ${helm_install_command}
-#  sleep 120
-#  kubectl get pods -n kube-system | grep object
-#fi
+#check if the plugin is already installed
+set -x
+helm ls -A --all | awk '{print $1}' | grep $SAT_CHART_NAME
+if [ $? == 0 ]; then
+  echo "chart already installed. please delete it and deploy the chart again";
+  exit 1;
+  set +x
+else
+  #helm_install_command="${helm_install_command} --debug"
+  ${helm_install_command}
+  sleep 120
+fi
