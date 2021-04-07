@@ -45,15 +45,15 @@ if [[ $SAT_CHART_NAME == "ibm-object-storage-plugin" ]]; then
   helm_install_command="helm ibmc install $SAT_CHART_NAME ./"
 elif [[ $SAT_CHART_NAME == "aws-ebs-csi-driver" ]]; then
     if [[ $SAT_CHART_VERSION == "" ]];then
-    helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME"
+    helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE"
   else
-    helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --version $SAT_CHART_VERSION"
+    helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
   fi
 else
   if [[ $SAT_CHART_VERSION == "" ]];then
-    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME"
+    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE"
   else
-    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --version $SAT_CHART_VERSION"
+    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
   fi
 fi
 

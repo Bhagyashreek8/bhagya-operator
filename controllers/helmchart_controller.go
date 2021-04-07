@@ -261,7 +261,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 					//	FSGroup:   &group,
 					//},
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:03",
+						Image:           "bhagyak1/helmchart-installer:04",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
