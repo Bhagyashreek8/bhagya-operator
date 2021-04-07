@@ -44,86 +44,79 @@ metadata:
   creationTimestamp: null
   name: role
 rules:
-#- apiGroups:
-#    - apps
-#  resources:
-#    - deployments
-#  verbs:
-#    - '*'
 - apiGroups:
-    - cache.example.com
+  - cache.example.com
   resources:
-    - '*'
+  - '*'
   verbs:
-    - create
-    - delete
-    - get
-    - list
-    - patch
-    - update
-    - watch
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
 - apiGroups:
-    - cache.example.com
+  - cache.example.com
   resources:
-    - helmcharts/finalizers
+  - helmcharts/finalizers
   verbs:
-    - update
+  - update
 - apiGroups:
-    - cache.example.com
+  - cache.example.com
   resources:
-    - helmcharts/status
+  - helmcharts/status
   verbs:
-    - get
-    - patch
-    - update
-#- apiGroups:
-#    - "security.openshift.io"
-#  resources:
-#    - securitycontextconstraints
-#  verbs:
-#    - get
-#    - create
+  - get
+  - patch
+  - update
 - apiGroups:
-    - ""
+  - ""
   resources:
-    - pods
-    - services
-    - endpoints
-    - persistentvolumeclaims
-    - events
-    - configmaps
-    - secrets
-    - helmcharts
+  - pods
+  - services
+  - endpoints
+  - persistentvolumeclaims
+  - events
+  - configmaps
+  - secrets
+  - helmcharts
   verbs:
-    - '*'
+  - '*'
 - apiGroups:
-    - ""
+  - ""
   resources:
-    - namespaces
+  - namespaces
   verbs:
-    - get
+  - get
+  - list
+  - create
+  - update
+  - delete
+  - watch
+  - patch
 - apiGroups:
-      - "coordination.k8s.io"
-    resources:
-      - leases
-    verbs:
-      - get
-- apiGroups:
-    - apps
+  - "coordination.k8s.io"
   resources:
-    - deployments
-    - daemonsets
-    - replicasets
-    - statefulsets
+  - leases
   verbs:
-    - '*'
+  - '*'
 - apiGroups:
-    - monitoring.coreos.com
+  - apps
   resources:
-    - servicemonitors
+  - deployments
+  - daemonsets
+  - replicasets
+  - statefulsets
   verbs:
-    - get
-    - create
+  - '*'
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - servicemonitors
+  verbs:
+  - get
+  - create
 - apiGroups: [""]
   resources: ["persistentvolumeclaims"]
   verbs: ["get", "list", "watch", "update"]
