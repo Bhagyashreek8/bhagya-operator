@@ -10,5 +10,4 @@ RUN   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/mast
 
 COPY  helmchart_entrypoint.sh /usr/bin/
 RUN   chmod 755 /usr/bin/helmchart_entrypoint.sh
-WORKDIR /root/
 ENTRYPOINT ["/usr/bin/helmchart_entrypoint.sh"]

@@ -34,7 +34,7 @@ fsGroup:
 supplementalGroups:
   type: RunAsAny
 users:
-  - system:serviceaccount:bhagya-operator-system:bhagya-operator-bhagya-manager
+  - system:serviceaccount:system:bhagya-manager
 groups: []
 
 ---

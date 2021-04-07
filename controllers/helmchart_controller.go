@@ -80,65 +80,65 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	/*
-	repo_name := helmchart.Spec.Repo_Name
-	chart_name := helmchart.Spec.Chart_Name
-	repo_url := helmchart.Spec.Repo_Url
-	chart_version := helmchart.Spec.Chart_Version
-	params := helmchart.Spec.Parameters
+		repo_name := helmchart.Spec.Repo_Name
+		chart_name := helmchart.Spec.Chart_Name
+		repo_url := helmchart.Spec.Repo_Url
+		chart_version := helmchart.Spec.Chart_Version
+		params := helmchart.Spec.Parameters
 
-	var namespace = ""
+		var namespace = ""
 
-	if helmchart.Spec.Namespace != "" {
-		namespace = helmchart.Spec.Namespace
-	} else {
-		namespace = "kube-system"
-	}
-
-	repo_add_cmd := "helm repo add " + repo_name + " " + repo_url
-	fmt.Println("repo_add_cmd ", repo_add_cmd)
-	repo_update_cmd := "helm repo update"
-	fmt.Println("repo_update_cmd ", repo_update_cmd)
-	helm_install_cmd := "helm upgrade --install " + chart_name + " --namespace " + namespace
-
-	fmt.Println("params ", params)
-	if len(params) > 0 {
-		for i := range params {
-			helm_install_cmd = helm_install_cmd + " --set " + params[i].Name + "=" + params[i].Value
+		if helmchart.Spec.Namespace != "" {
+			namespace = helmchart.Spec.Namespace
+		} else {
+			namespace = "kube-system"
 		}
-	}
 
-	if chart_version != "" {
-		helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name + " --version " + chart_version
-	} else {
-		helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name
-	}
+		repo_add_cmd := "helm repo add " + repo_name + " " + repo_url
+		fmt.Println("repo_add_cmd ", repo_add_cmd)
+		repo_update_cmd := "helm repo update"
+		fmt.Println("repo_update_cmd ", repo_update_cmd)
+		helm_install_cmd := "helm upgrade --install " + chart_name + " --namespace " + namespace
 
-	fmt.Println("Final helm install command ")
-	fmt.Println(helm_install_cmd)
+		fmt.Println("params ", params)
+		if len(params) > 0 {
+			for i := range params {
+				helm_install_cmd = helm_install_cmd + " --set " + params[i].Name + "=" + params[i].Value
+			}
+		}
 
-	_, outStr, outErr := ExecuteCommand(repo_add_cmd)
-	if outErr != "" {
-		fmt.Println(outErr)
-		return ctrl.Result{}, err
-	} else {
-		fmt.Println(outStr)
-	}
+		if chart_version != "" {
+			helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name + " --version " + chart_version
+		} else {
+			helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name
+		}
 
-	_, outStr, outErr = ExecuteCommand(repo_update_cmd)
-	if outErr != "" {
-		fmt.Println(outErr)
-		return ctrl.Result{}, err
-	} else {
-		fmt.Println(outStr)
-	}
+		fmt.Println("Final helm install command ")
+		fmt.Println(helm_install_cmd)
 
-	_, outStr, outErr = ExecuteCommand(helm_install_cmd)
-	if outErr != "" {
-		fmt.Println(outErr)
-		return ctrl.Result{}, err
-	} else {
-		fmt.Println(outStr)
-	}
+		_, outStr, outErr := ExecuteCommand(repo_add_cmd)
+		if outErr != "" {
+			fmt.Println(outErr)
+			return ctrl.Result{}, err
+		} else {
+			fmt.Println(outStr)
+		}
+
+		_, outStr, outErr = ExecuteCommand(repo_update_cmd)
+		if outErr != "" {
+			fmt.Println(outErr)
+			return ctrl.Result{}, err
+		} else {
+			fmt.Println(outStr)
+		}
+
+		_, outStr, outErr = ExecuteCommand(helm_install_cmd)
+		if outErr != "" {
+			fmt.Println(outErr)
+			return ctrl.Result{}, err
+		} else {
+			fmt.Println(outStr)
+		}
 	*/
 
 	// Check if the deployment already exists, if not create a new one
@@ -234,8 +234,8 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 		namespace = "kube-system"
 	}
 
-	user := int64(2121)
-	group := int64(2121)
+	user := int64(1000)
+	group := int64(1000)
 	varTrue := true
 
 	dep := &appsv1.Deployment{
@@ -253,9 +253,9 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 					Labels: ls,
 				},
 				Spec: corev1.PodSpec{
-					ServiceAccountName: "bhagya-operator-bhagya-manager",
+					ServiceAccountName: "bhagya-manager",
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:01",
+						Image:           "bhagyak1/helmchart-installer:02",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
@@ -263,8 +263,8 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							Name:          "helmchart",
 						}},
 						SecurityContext: &corev1.SecurityContext{
-							RunAsUser:  &user,
-							RunAsGroup: &group,
+							RunAsUser:    &user,
+							RunAsGroup:   &group,
 							RunAsNonRoot: &varTrue,
 						},
 						Env: []corev1.EnvVar{
