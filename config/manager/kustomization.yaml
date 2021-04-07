@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: bhagyak1/bhagya-test
-  newTag: v07
+  newTag: v09

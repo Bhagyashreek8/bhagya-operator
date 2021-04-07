@@ -79,6 +79,7 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
+	/*
 	repo_name := helmchart.Spec.Repo_Name
 	chart_name := helmchart.Spec.Chart_Name
 	repo_url := helmchart.Spec.Repo_Url
@@ -138,6 +139,7 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	} else {
 		fmt.Println(outStr)
 	}
+	*/
 
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
@@ -209,13 +211,31 @@ func ExecuteCommand(command string) (int, string, string) {
 func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *appsv1.Deployment {
 	ls := labelsForHelmChart(m.Name)
 	replicas := int32(2)
-	//repo_name := m.Spec.Repo_Name
-	//chart_name := m.Spec.Chart_Name
-	//repo_url := m.Spec.Repo_Url
-	//chart_version := m.Spec.Chart_Version
-	//params := m.Spec.Params
-	//user := int64(2121)
-	//group := int64(2121)
+	repo_name := m.Spec.Repo_Name
+	chart_name := m.Spec.Chart_Name
+	repo_url := m.Spec.Repo_Url
+	chart_version := m.Spec.Chart_Version
+	params := m.Spec.Parameters
+	helm_options := ""
+
+	fmt.Println("params ", params)
+	if len(params) > 0 {
+		for i := range params {
+			helm_options = helm_options + "," + params[i].Name + "=" + params[i].Value
+		}
+	}
+	fmt.Println("helm_options ", helm_options)
+
+	var namespace = ""
+
+	if m.Spec.Namespace != "" {
+		namespace = m.Spec.Namespace
+	} else {
+		namespace = "kube-system"
+	}
+
+	user := int64(2121)
+	group := int64(2121)
 	varTrue := true
 
 	dep := &appsv1.Deployment{
@@ -235,7 +255,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "bhagya-operator-bhagya-manager",
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/bhagya-test:v07",
+						Image:           "bhagyak1/helmchart-installer:01",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
@@ -243,11 +263,34 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							Name:          "helmchart",
 						}},
 						SecurityContext: &corev1.SecurityContext{
-							//RunAsUser:  &user,
-							//RunAsGroup: &group,
+							RunAsUser:  &user,
+							RunAsGroup: &group,
 							RunAsNonRoot: &varTrue,
-							Capabilities: &corev1.Capabilities{
-								Drop: []corev1.Capability{"ALL"},
+						},
+						Env: []corev1.EnvVar{
+							{
+								Name:  "HELM_REPO_NAME",
+								Value: repo_name,
+							},
+							{
+								Name:  "HELM_REPO_URL",
+								Value: repo_url,
+							},
+							{
+								Name:  "SAT_CHART_NAME",
+								Value: chart_name,
+							},
+							{
+								Name:  "SAT_CHART_VERSION",
+								Value: chart_version,
+							},
+							{
+								Name:  "SAT_NAMESPACE",
+								Value: namespace,
+							},
+							{
+								Name:  "HELM_OPTIONS",
+								Value: helm_options,
 							},
 						},
 					}},

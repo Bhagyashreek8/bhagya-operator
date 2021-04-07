@@ -1,5 +1,6 @@
 # Build the manager binary
 FROM golang:1.15 as builder
+
 WORKDIR /workspace
 # Copy the Go Modules manifests
 COPY go.mod go.mod
@@ -15,25 +16,12 @@ COPY controllers/ controllers/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager main.go
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+
+# Use distroless as minimal base image to package the manager binary
+# Refer to https://github.com/GoogleContainerTools/distroless for more details
+FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-RUN   microdnf update && microdnf install -y curl bash tar gzip iputils
-#shadow-utils \
-#&& adduser -r -u 1000 -g 0 /
-RUN   curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kubectl && \
-      chmod +x ./kubectl &&  mv ./kubectl /usr/local/bin/kubectl
-#RUN   curl -LO https://get.helm.sh/helm-v3.5.0-linux-amd64.tar.gz && tar -zxvf helm-v3.5.0-linux-amd64.tar.gz && \
-#      chmod +x linux-amd64/helm && mv linux-amd64/helm /usr/local/bin/helm
-RUN   curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
-      chmod 700 get_helm.sh && ./get_helm.sh
-
 COPY --from=builder /workspace/manager .
-
-RUN chmod 755 /manager
-
-USER root
-
-RUN cd / && mkdir -p .config/helm
-RUN chmod 777 .config/helm
+USER 65532:65532
 
 ENTRYPOINT ["/manager"]
