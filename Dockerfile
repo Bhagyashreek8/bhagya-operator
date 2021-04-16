@@ -27,6 +27,6 @@ RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.6/b
 RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
     chmod 700 get_helm.sh && ./get_helm.sh
 COPY --from=builder /workspace/manager .
-USER 65532:65532
-
+#USER 65532:65532
+USER root
 ENTRYPOINT ["/manager"]

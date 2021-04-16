@@ -90,17 +90,6 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
-	/*
-
-		_, outStr, outErr = ExecuteCommand(helm_install_cmd)
-		if outErr != "" {
-			fmt.Println(outErr)
-			return ctrl.Result{}, err
-		} else {
-			fmt.Println(outStr)
-		}
-	*/
-
 	// Check if the deployment already exists, if not create a new one
 	found := &appsv1.Deployment{}
 	err = r.Get(ctx, types.NamespacedName{Name: helmchart.Name, Namespace: helmchart.Namespace}, found)
