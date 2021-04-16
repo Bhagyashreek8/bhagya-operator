@@ -19,8 +19,13 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o manager 
 
 # Use distroless as minimal base image to package the manager binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
-FROM gcr.io/distroless/static:nonroot
+FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
 WORKDIR /
+RUN microdnf update && microdnf install -y curl bash tar gzip
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.18.6/bin/linux/amd64/kubectl && \
+    chmod +x ./kubectl &&  mv ./kubectl /usr/local/bin/kubectl
+RUN curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 && \
+    chmod 700 get_helm.sh && ./get_helm.sh
 COPY --from=builder /workspace/manager .
 USER 65532:65532
 

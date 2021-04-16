@@ -45,6 +45,15 @@ type HelmChartReconciler struct {
 	Scheme *runtime.Scheme
 }
 
+// HelmChartReconciler reconciles a HelmChart object
+type HelmChartWatcher struct {
+	client.Client
+	Log    logr.Logger
+	Scheme *runtime.Scheme
+}
+
+var helmMap = make([]map[string]string, 1)
+
 //+kubebuilder:rbac:groups=cache.example.com,resources=helmcharts,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cache.example.com,resources=helmcharts/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=cache.example.com,resources=helmcharts/finalizers,verbs=update
@@ -65,6 +74,8 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 
 	// Fetch the HelmChart instance
 	helmchart := &cachev1.HelmChart{}
+	fmt.Println("req.NamespacedName1")
+	fmt.Println(req.NamespacedName)
 	err := r.Get(ctx, req.NamespacedName, helmchart)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -80,57 +91,6 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 	}
 
 	/*
-		repo_name := helmchart.Spec.Repo_Name
-		chart_name := helmchart.Spec.Chart_Name
-		repo_url := helmchart.Spec.Repo_Url
-		chart_version := helmchart.Spec.Chart_Version
-		params := helmchart.Spec.Parameters
-
-		var namespace = ""
-
-		if helmchart.Spec.Namespace != "" {
-			namespace = helmchart.Spec.Namespace
-		} else {
-			namespace = "kube-system"
-		}
-
-		repo_add_cmd := "helm repo add " + repo_name + " " + repo_url
-		fmt.Println("repo_add_cmd ", repo_add_cmd)
-		repo_update_cmd := "helm repo update"
-		fmt.Println("repo_update_cmd ", repo_update_cmd)
-		helm_install_cmd := "helm upgrade --install " + chart_name + " --namespace " + namespace
-
-		fmt.Println("params ", params)
-		if len(params) > 0 {
-			for i := range params {
-				helm_install_cmd = helm_install_cmd + " --set " + params[i].Name + "=" + params[i].Value
-			}
-		}
-
-		if chart_version != "" {
-			helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name + " --version " + chart_version
-		} else {
-			helm_install_cmd = helm_install_cmd + " " + repo_name + "/" + chart_name
-		}
-
-		fmt.Println("Final helm install command ")
-		fmt.Println(helm_install_cmd)
-
-		_, outStr, outErr := ExecuteCommand(repo_add_cmd)
-		if outErr != "" {
-			fmt.Println(outErr)
-			return ctrl.Result{}, err
-		} else {
-			fmt.Println(outStr)
-		}
-
-		_, outStr, outErr = ExecuteCommand(repo_update_cmd)
-		if outErr != "" {
-			fmt.Println(outErr)
-			return ctrl.Result{}, err
-		} else {
-			fmt.Println(outStr)
-		}
 
 		_, outStr, outErr = ExecuteCommand(helm_install_cmd)
 		if outErr != "" {
@@ -153,11 +113,47 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 			log.Error(err, "Failed to create new Deployment", "Deployment.Namespace", dep.Namespace, "Deployment.Name", dep.Name)
 			return ctrl.Result{}, err
 		}
+		helmName := helmchart.Name
+		chartName := helmchart.Spec.Chart_Name
+		chartNs := helmchart.Spec.Namespace
+
+		helmMap2 := make(map[string]string)
+		helmMap2["helmName"] = helmName
+		helmMap2["chartName"] = chartName
+		helmMap2["chartNs"] = chartNs
+
+		fmt.Println("helmMap2")
+		fmt.Println(helmMap2)
+
+		helmMap = append(helmMap, helmMap2)
+
+		fmt.Println("helmMap")
+		fmt.Println(helmMap)
 		// Deployment created successfully - return and requeue
 		return ctrl.Result{Requeue: true}, nil
 	} else if err != nil {
 		log.Error(err, "Failed to get Deployment")
 		return ctrl.Result{}, err
+	}
+
+	return ctrl.Result{}, nil
+}
+
+func (r *HelmChartWatcher) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	//log := r.Log.WithValues("helmchart", req.NamespacedName)
+
+	helmchart := &cachev1.HelmChart{}
+	fmt.Println("req.NamespacedName2")
+	fmt.Println(req.NamespacedName)
+	err := r.Get(ctx, req.NamespacedName, helmchart)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			fmt.Println("delete respective helm chart")
+			fmt.Println("helmchart to delete")
+			helmchartName := strings.Split(fmt.Sprint(req.NamespacedName), "/")
+			out := deleteHelmChart(helmchartName[1])
+			fmt.Println(out)
+		}
 	}
 
 	return ctrl.Result{}, nil
@@ -171,15 +167,51 @@ func (r *HelmChartReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// SetupWithManager sets up the controller with the Manager.
+func (r *HelmChartWatcher) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&cachev1.HelmChart{}).
+		Complete(r)
+}
+
+func deleteHelmChart(chartCrdName string) (out string) {
+	fmt.Println("chartCrdName")
+	fmt.Println(chartCrdName)
+	chartName := ""
+	chartNs := ""
+	for i := range helmMap {
+		tempMap := helmMap[i]
+		fmt.Println("tempMap")
+		fmt.Println(tempMap)
+		if tempMap["helmName"] == chartCrdName {
+			chartName = tempMap["chartName"]
+			chartNs = tempMap["chartNs"]
+		}
+	}
+	helm_del_cmd := "helm delete " + chartName + " -n " + chartNs
+	fmt.Println("helm_del_cmd")
+	fmt.Println(helm_del_cmd)
+
+	_, outStr, outErr := ExecuteCommand(helm_del_cmd)
+	if outErr != "" {
+		fmt.Println(outErr)
+		return outErr
+	}
+
+	fmt.Println(outStr)
+	return outStr
+}
+
 // ExecuteCommand to execute shell commands
 func ExecuteCommand(command string) (int, string, string) {
+	fmt.Println("in ExecuteCommand")
 	var cmd *exec.Cmd
 	var cmdErr bytes.Buffer
 	var cmdOut bytes.Buffer
 	cmdErr.Reset()
 	cmdOut.Reset()
 
-	cmd = exec.Command("sh", "-c", command)
+	cmd = exec.Command("bash", "-c", command)
 	cmd.Stderr = &cmdErr
 	cmd.Stdout = &cmdOut
 	err := cmd.Run()
@@ -261,7 +293,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 					//	FSGroup:   &group,
 					//},
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:04",
+						Image:           "bhagyak1/helmchart-installer:05",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{

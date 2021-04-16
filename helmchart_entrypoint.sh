@@ -75,5 +75,5 @@ if [ $? == 0 ]; then
 else
   #helm_install_command="${helm_install_command} --debug"
   ${helm_install_command}
-  sleep 120
+  tail -f /dev/null
 fi

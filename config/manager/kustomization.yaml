@@ -13,4 +13,4 @@ kind: Kustomization
 images:
 - name: controller
   newName: bhagyak1/bhagya-oprator
-  newTag: "06"
+  newTag: "15"
