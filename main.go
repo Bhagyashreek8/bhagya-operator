@@ -97,10 +97,10 @@ func main() {
 
 	if err = (&controllers.HelmChartWatcher{
 		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("HelmChart"),
+		Log:    ctrl.Log.WithName("controllers").WithName("HelmChartWatcher"),
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "HelmChart")
+		setupLog.Error(err, "unable to create controller", "controller", "HelmChartWatcher")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

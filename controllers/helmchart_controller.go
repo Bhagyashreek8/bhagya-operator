@@ -145,6 +145,7 @@ func (r *HelmChartWatcher) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 		}
 	}
 
+	//return ctrl.Result{RequeueAfter: time.Minute, Requeue: true}, nil
 	return ctrl.Result{}, nil
 }
 
@@ -168,6 +169,7 @@ func deleteHelmChart(chartCrdName string) (out string) {
 	fmt.Println(chartCrdName)
 	chartName := ""
 	chartNs := ""
+	mapIndex := 0
 	for i := range helmMap {
 		tempMap := helmMap[i]
 		fmt.Println("tempMap")
@@ -175,9 +177,10 @@ func deleteHelmChart(chartCrdName string) (out string) {
 		if tempMap["helmName"] == chartCrdName {
 			chartName = tempMap["chartName"]
 			chartNs = tempMap["chartNs"]
+			mapIndex = i
 		}
 	}
-	helm_del_cmd := "helm delete " + chartName + " -n " + chartNs
+	helm_del_cmd := "helm delete " + chartName + " -n " + chartNs + " --debug"
 	fmt.Println("helm_del_cmd")
 	fmt.Println(helm_del_cmd)
 
@@ -186,6 +189,8 @@ func deleteHelmChart(chartCrdName string) (out string) {
 		fmt.Println(outErr)
 		return outErr
 	}
+
+	helmMap = append(helmMap[:mapIndex], helmMap[mapIndex+1:]...)
 
 	fmt.Println(outStr)
 	return outStr
