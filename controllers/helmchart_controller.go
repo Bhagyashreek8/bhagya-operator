@@ -190,7 +190,10 @@ func deleteHelmChart(chartCrdName string) (out string) {
 		return outErr
 	}
 
+	fmt.Println("mapIndex: ", mapIndex)
 	helmMap = append(helmMap[:mapIndex], helmMap[mapIndex+1:]...)
+	fmt.Println("helmMap after deleting helmchart")
+	fmt.Println(helmMap)
 
 	fmt.Println(outStr)
 	return outStr
@@ -282,10 +285,6 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				},
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "bhagya-manager",
-					//SecurityContext: &corev1.PodSecurityContext{
-					//	RunAsUser: &user,
-					//	FSGroup:   &group,
-					//},
 					Containers: []corev1.Container{{
 						Image:           "bhagyak1/helmchart-installer:05",
 						Name:            "helmchart",
@@ -296,7 +295,6 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 						}},
 						SecurityContext: &corev1.SecurityContext{
 							RunAsUser: &rootuser,
-							//RunAsGroup:   &group,
 							RunAsNonRoot:             &varFalse,
 							ReadOnlyRootFilesystem:   &varFalse,
 							Privileged:               &varFalse,
