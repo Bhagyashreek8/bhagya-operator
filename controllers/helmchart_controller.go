@@ -263,9 +263,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 		namespace = "kube-system"
 	}
 
-	//user := int64(2121)
 	rootuser := int64(0)
-	//group := int64(2121)
 	varTrue := true
 	varFalse := false
 
@@ -286,7 +284,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "bhagya-manager",
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:05",
+						Image:           "bhagyak1/helmchart-installer:06",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{

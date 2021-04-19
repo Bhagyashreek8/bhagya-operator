@@ -33,11 +33,11 @@ helm_options=$(echo $helm_options | tr "," "\n")  #split HELM_OPTIONS by comma
 
 if [[ $SAT_CHART_NAME == "ibm-object-storage-plugin" ]]; then
   if [[ $SAT_CHART_VERSION == "" ]];then
-    helm fetch --untar ibm-helm/ibm-object-storage-plugin
+    helm fetch --untar $HELM_REPO_NAME/$SAT_CHART_NAME
   else
-    helm fetch --untar ibm-helm/ibm-object-storage-plugin --version $SAT_CHART_VERSION
+    helm fetch --untar $HELM_REPO_NAME/$SAT_CHART_NAME --version $SAT_CHART_VERSION
   fi
-  cd ibm-object-storage-plugin/
+  cd $SAT_CHART_NAME/
   chmod 755 helm-ibmc/ibmc.sh
   helm plugin install helm-ibmc
   helm ibmc --help
