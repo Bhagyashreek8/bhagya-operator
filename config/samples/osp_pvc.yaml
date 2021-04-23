@@ -1,0 +1,19 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: osp-pvc
+  namespace: system
+  annotations:
+    ibm.io/auto-create-bucket: "true"
+    ibm.io/auto-delete-bucket: "false"
+    ibm.io/bucket: ""
+    # ibm.io/object-path: "<bucket_subdirectory>"
+    ibm.io/secret-name: "osp-secret"
+    ibm.io/endpoint: "http://s3.us.cloud-object-storage.appdomain.cloud"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 30Gi
+  storageClassName: ibmc-s3fs-cold-cross-region

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: osp-pod
+spec:
+  volumes:
+  - name: test-vol
+    persistentVolumeClaim:
+        claimName: osp-pvc
+  - name: hostpath-test
+    hostPath:
+        path: /var/mydata01
+        type: DirectoryOrCreate
+  containers:
+  - name: osp-demo-container
+    image: nkkashyap/cosperf:v011
+    imagePullPolicy: Always
+    volumeMounts:
+    - name: test-vol
+      mountPath: "/mnt/myvol"
+ 

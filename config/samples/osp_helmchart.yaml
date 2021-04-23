@@ -1,0 +1,13 @@
+apiVersion: cache.example.com/v1
+kind: HelmChart
+metadata:
+  name: osp
+spec:
+  helm-repo-name: ibm-helm
+  helm-repo-url: https://raw.githubusercontent.com/IBM/charts/master/repo/ibm-helm
+  helm-chart-name: ibm-object-storage-plugin
+  helm-chart-version: "2.0.6"
+  namespace: kube-system
+  params:
+  - name: "license"
+    value: "true"

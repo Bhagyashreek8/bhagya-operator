@@ -134,10 +134,10 @@ rules:
   verbs: ["list", "watch", "create", "update", "patch"]
 - apiGroups: ["storage.k8s.io"]
   resources: ["storageclasses"]
-  verbs: ["create", "get", "list", "watch", "delete"]
+  verbs: ["create", "get", "list", "watch", "delete", "patch"]
 - apiGroups: ["storage.k8s.io"]
   resources: ["csidrivers"]
-  verbs: ["create", "get", "list", "watch", "delete"]
+  verbs: ["create", "get", "list", "watch", "delete", "patch"]
 - apiGroups: ["storage.k8s.io"]
   resources: ["volumeattachments"]
   verbs: ["get", "list", "watch", "update", "patch"]
@@ -197,7 +197,7 @@ rules:
   verbs: ["get", "list"]
 - apiGroups: ["security.openshift.io"]
   resources: ["securitycontextconstraints"]
-  verbs: ["get", "list", "create", "update"]
+  verbs: ["get", "list", "create", "update", "patch", "delete"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -53,6 +53,8 @@ type HelmChartWatcher struct {
 }
 
 var helmMap = make([]map[string]string, 1)
+var updateChart = "false"
+var flag = 0
 
 //+kubebuilder:rbac:groups=cache.example.com,resources=helmcharts,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cache.example.com,resources=helmcharts/status,verbs=get;update;patch
@@ -125,11 +127,17 @@ func (r *HelmChartReconciler) Reconcile(ctx context.Context, req ctrl.Request) (
 		return ctrl.Result{}, err
 	}
 
+	flag = 0
+
 	return ctrl.Result{}, nil
 }
 
 func (r *HelmChartWatcher) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	//log := r.Log.WithValues("helmchart", req.NamespacedName)
+
+	if flag == 0 {
+		updateChart = "false"
+	}
 
 	helmchart := &cachev1.HelmChart{}
 	fmt.Println("req.NamespacedName2")
@@ -140,8 +148,31 @@ func (r *HelmChartWatcher) Reconcile(ctx context.Context, req ctrl.Request) (ctr
 			fmt.Println("delete respective helm chart")
 			fmt.Println("helmchart to delete")
 			helmchartName := strings.Split(fmt.Sprint(req.NamespacedName), "/")
+			updateChart = "false"
+			flag = 0
 			out := deleteHelmChart(helmchartName[1])
+			fmt.Println(flag, updateChart)
 			fmt.Println(out)
+		}
+	} else {
+		helmchartName := strings.Split(fmt.Sprint(req.NamespacedName), "/")[1]
+		mapIndex := 0
+		for ind := range helmMap {
+			mapIndex = ind
+			if helmMap[ind]["helmName"] == helmchartName {
+				flag = 1
+				break
+			}
+		}
+		fmt.Println("FLAG:", flag, mapIndex)
+		if flag == 1 {
+			updateChart = "true"
+			helmMap = append(helmMap[:mapIndex], helmMap[mapIndex+1:]...)
+			_, out, err := ExecuteCommand("kubectl delete deployment " + helmchartName + " -n " + req.Namespace)
+			fmt.Println("out:", out)
+			fmt.Print("err:", err)
+		} else {
+			updateChart = "false"
 		}
 	}
 
@@ -180,6 +211,12 @@ func deleteHelmChart(chartCrdName string) (out string) {
 			mapIndex = i
 		}
 	}
+
+	fmt.Println("mapIndex: ", mapIndex)
+	helmMap = append(helmMap[:mapIndex], helmMap[mapIndex+1:]...)
+	fmt.Println("helmMap after deleting helmchart")
+	fmt.Println(helmMap)
+
 	helm_del_cmd := "helm delete " + chartName + " -n " + chartNs + " --debug"
 	fmt.Println("helm_del_cmd")
 	fmt.Println(helm_del_cmd)
@@ -189,11 +226,6 @@ func deleteHelmChart(chartCrdName string) (out string) {
 		fmt.Println(outErr)
 		return outErr
 	}
-
-	fmt.Println("mapIndex: ", mapIndex)
-	helmMap = append(helmMap[:mapIndex], helmMap[mapIndex+1:]...)
-	fmt.Println("helmMap after deleting helmchart")
-	fmt.Println(helmMap)
 
 	fmt.Println(outStr)
 	return outStr
@@ -224,8 +256,8 @@ func ExecuteCommand(command string) (int, string, string) {
 		if errStr != "" {
 			//filelogger.Info(command)
 			//filelogger.Error(errStr)
-			fmt.Print(command)
-			fmt.Print(errStr)
+			fmt.Println(command)
+			fmt.Println(errStr)
 		}
 	} else {
 		waitStatus = cmd.ProcessState.Sys().(syscall.WaitStatus)
@@ -239,7 +271,7 @@ func ExecuteCommand(command string) (int, string, string) {
 // deploymentForHelmChart returns a helmchart Deployment object
 func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *appsv1.Deployment {
 	ls := labelsForHelmChart(m.Name)
-	replicas := int32(2)
+	replicas := int32(1)
 	repo_name := m.Spec.Repo_Name
 	chart_name := m.Spec.Chart_Name
 	repo_url := m.Spec.Repo_Url
@@ -254,6 +286,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 		}
 	}
 	fmt.Println("helm_options ", helm_options)
+	fmt.Println(updateChart)
 
 	var namespace = ""
 
@@ -284,7 +317,8 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 				Spec: corev1.PodSpec{
 					ServiceAccountName: "bhagya-manager",
 					Containers: []corev1.Container{{
-						Image:           "bhagyak1/helmchart-installer:06",
+						// Image:           "bhagyak1/helmchart-installer:07",
+						Image:           "ashima27/helmscript:09",
 						Name:            "helmchart",
 						ImagePullPolicy: "Always",
 						Ports: []corev1.ContainerPort{{
@@ -292,7 +326,7 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							Name:          "helmchart",
 						}},
 						SecurityContext: &corev1.SecurityContext{
-							RunAsUser: &rootuser,
+							RunAsUser:                &rootuser,
 							RunAsNonRoot:             &varFalse,
 							ReadOnlyRootFilesystem:   &varFalse,
 							Privileged:               &varFalse,
@@ -322,6 +356,10 @@ func (r *HelmChartReconciler) deploymentForHelmChart(m *cachev1.HelmChart) *apps
 							{
 								Name:  "HELM_OPTIONS",
 								Value: helm_options,
+							},
+							{
+								Name:  "UPDATE_CHART",
+								Value: updateChart,
 							},
 						},
 					}},

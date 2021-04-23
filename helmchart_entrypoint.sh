@@ -42,18 +42,24 @@ if [[ $SAT_CHART_NAME == "ibm-object-storage-plugin" ]]; then
   helm plugin install helm-ibmc
   helm ibmc --help
   set +x
-  helm_install_command="helm ibmc install $SAT_CHART_NAME ./"
-elif [[ $SAT_CHART_NAME == "aws-ebs-csi-driver" ]]; then
-    if [[ $SAT_CHART_VERSION == "" ]];then
+  if [[ $SAT_CHART_VERSION == "" ]];then
+    helm_install_command="helm ibmc install $SAT_CHART_NAME ./ --namespace $SAT_NAMESPACE"
+    helm_update_command="helm ibmc upgrade $SAT_CHART_NAME  $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE" 
+  else 
+    helm_install_command="helm ibmc install $SAT_CHART_NAME ./ --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
+    helm_update_command="helm ibmc upgrade $SAT_CHART_NAME  $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION" 
+  fi
+# elif [[ $SAT_CHART_NAME == "aws-ebs-csi-driver" ]]; then
+#     if [[ $SAT_CHART_VERSION == "" ]];then
+#     helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE"
+#   else
+#     helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
+#   fi
+else
+  if [[ $SAT_CHART_VERSION == "" ]];then
     helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE"
   else
     helm_install_command="helm upgrade --install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
-  fi
-else
-  if [[ $SAT_CHART_VERSION == "" ]];then
-    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE"
-  else
-    helm_install_command="helm install $SAT_CHART_NAME $HELM_REPO_NAME/$SAT_CHART_NAME --namespace $SAT_NAMESPACE --version $SAT_CHART_VERSION"
   fi
 fi
 
@@ -69,9 +75,30 @@ echo ${helm_install_command}
 set -x
 helm ls -A --all | awk '{print $1}' | grep $SAT_CHART_NAME
 if [ $? == 0 ]; then
-  echo "chart already installed. please delete it and deploy the chart again";
-  exit 1;
-  set +x
+  # if $UPDATE_CHART == "true"; then
+  #   echo "update the pre-installed chart"
+  #   ${helm_install_command}
+  #   tail -f /dev/null
+  if $UPDATE_CHART == "true"; then 
+    if [[ $SAT_CHART_NAME == "ibm-object-storage-plugin" ]]; then 
+      for option in $helm_options
+      do
+      helm_update_command="${helm_update_command} --set $option"
+      done
+
+       echo "update the pre-installed chart"
+       ${helm_update_command}
+       tail -f /dev/null
+    else 
+      echo "update the pre-installed chart"
+      ${helm_install_command}
+      tail -f /dev/null
+    fi
+  else 
+    echo "chart already installed. please delete it and deploy the chart again";
+    exit 1;
+    set +x
+  fi
 else
   #helm_install_command="${helm_install_command} --debug"
   ${helm_install_command}
