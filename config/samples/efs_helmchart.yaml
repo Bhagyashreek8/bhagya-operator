@@ -6,7 +6,7 @@ spec:
   helm-repo-name: aws-efs-csi-driver
   helm-repo-url: https://kubernetes-sigs.github.io/aws-efs-csi-driver/
   helm-chart-name: aws-efs-csi-driver
-  helm-chart-version: "1.2.2"
-  namespace: system
+  helm-chart-version: "1.2.1"
+  namespace: kube-system
   # params:
 

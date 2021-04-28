@@ -6,7 +6,7 @@ spec:
   helm-repo-name: aws-ebs-csi-driver
   helm-repo-url: https://kubernetes-sigs.github.io/aws-ebs-csi-driver
   helm-chart-name: aws-ebs-csi-driver
-  helm-chart-version: "0.10.0"
+  helm-chart-version: "0.10.2"
   namespace: kube-system
   params:
 #    - name: "enableVolumeScheduling"
