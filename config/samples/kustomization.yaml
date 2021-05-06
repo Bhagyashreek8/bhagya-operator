@@ -2,4 +2,5 @@
 resources:
 - cache_v1_bhagyatest.yaml
 - cache_v1_helmchart.yaml
+- cache_v1_localoperator.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

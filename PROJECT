@@ -1,5 +1,6 @@
 domain: example.com
-layout: go.kubebuilder.io/v3
+layout:
+- go.kubebuilder.io/v3
 plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
@@ -22,6 +23,15 @@ resources:
   domain: example.com
   group: cache
   kind: HelmChart
+  path: github.com/Bhagyashreek8/bhagya-operator/api/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: example.com
+  group: cache
+  kind: LocalOperator
   path: github.com/Bhagyashreek8/bhagya-operator/api/v1
   version: v1
 version: "3"

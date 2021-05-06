@@ -33,6 +33,9 @@ import (
 
 	cachev1 "github.com/Bhagyashreek8/bhagya-operator/api/v1"
 	"github.com/Bhagyashreek8/bhagya-operator/controllers"
+	localv1 "github.com/openshift/local-storage-operator/pkg/apis/local/v1"
+	v1 "github.com/operator-framework/api/pkg/operators/v1"
+	"github.com/operator-framework/api/pkg/operators/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -46,6 +49,10 @@ func init() {
 
 	utilruntime.Must(cachev1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
+	utilruntime.Must(v1.AddToScheme(scheme))
+	utilruntime.Must(v1alpha1.AddToScheme(scheme))
+	utilruntime.Must(localv1.SchemeBuilder.AddToScheme(scheme))
+
 }
 
 func main() {
@@ -101,6 +108,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "HelmChartWatcher")
+		os.Exit(1)
+	}
+	if err = (&controllers.LocalOperatorReconciler{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("LocalOperator"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "LocalOperator")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

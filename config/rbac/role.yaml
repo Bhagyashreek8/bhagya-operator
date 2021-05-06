@@ -71,6 +71,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - cache.example.com
+  resources:
+  - localoperators
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - cache.example.com
+  resources:
+  - localoperators/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - cache.example.com
+  resources:
+  - localoperators/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - ""
   resources:
   - pods

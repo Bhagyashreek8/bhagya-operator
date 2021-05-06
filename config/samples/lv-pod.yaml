@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-devtest-file-01
+spec:
+  volumes:
+  - name: test-vol
+    persistentVolumeClaim:
+        claimName: devtest-file-pvc
+  containers:
+  - name: devtest-demo-container
+    image: busybox
+    command: ["sh"]
+    args: ["-c", "while true; do echo $(date +%s) > /mnt/myvol/testfile; sleep 10; done"]
+    volumeMounts:
+    - name: test-vol
+      mountPath: "/mnt/myvol"

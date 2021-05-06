@@ -1,0 +1,20 @@
+# permissions for end users to view localoperators.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: localoperator-viewer-role
+rules:
+- apiGroups:
+  - cache.example.com
+  resources:
+  - localoperators
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - cache.example.com
+  resources:
+  - localoperators/status
+  verbs:
+  - get

@@ -1,0 +1,16 @@
+apiVersion: cache.example.com/v1
+kind: LocalOperator
+metadata:
+  name: local-volume
+spec:
+  # Add fields here
+  namespace: "local-storage02"
+  storageClassName: "sat-local-block-gold"
+  volumeMode: "Block"
+  # volumeMode: "Filesystem"
+  devicePath: "/dev/xvdc"
+  label:
+    key: "storage"
+    value: "localblock"
+    # value: "lfile"
+  fstype: ""

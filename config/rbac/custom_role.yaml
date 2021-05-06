@@ -198,6 +198,15 @@ rules:
 - apiGroups: ["security.openshift.io"]
   resources: ["securitycontextconstraints"]
   verbs: ["get", "list", "create", "update", "patch", "delete"]
+- apiGroups: ["operators.coreos.com"]
+  resources: ["operatorgroups"]
+  verbs: ["watch", "get", "list", "create", "delete"]
+- apiGroups: ["operators.coreos.com"]
+  resources: ["subscriptions"]
+  verbs: ["watch", "get", "list", "create", "delete"]
+- apiGroups: ["local.storage.openshift.io"]
+  resources: ["localvolumes"]
+  verbs: ["watch", "get", "list", "create", "delete"]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
