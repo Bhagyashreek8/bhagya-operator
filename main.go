@@ -101,7 +101,6 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "HelmChart")
 		os.Exit(1)
 	}
-
 	if err = (&controllers.HelmChartWatcher{
 		Client: mgr.GetClient(),
 		Log:    ctrl.Log.WithName("controllers").WithName("HelmChartWatcher"),
@@ -116,6 +115,14 @@ func main() {
 		Scheme: mgr.GetScheme(),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "LocalOperator")
+		os.Exit(1)
+	}
+	if err = (&controllers.LocalOperatorWatcher{
+		Client: mgr.GetClient(),
+		Log:    ctrl.Log.WithName("controllers").WithName("LocalOperatorWatcher"),
+		Scheme: mgr.GetScheme(),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "LocalOperatorWatcher")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder

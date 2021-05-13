@@ -18,6 +18,9 @@ package controllers
 
 import (
 	"context"
+	"fmt"
+	"reflect"
+	"time"
 
 	"github.com/go-logr/logr"
 	v1 "github.com/operator-framework/api/pkg/operators/v1"
@@ -41,6 +44,16 @@ type LocalOperatorReconciler struct {
 	Log    logr.Logger
 	Scheme *runtime.Scheme
 }
+
+// LocalOperatorWatcher reconciles a LocalOperator object
+type LocalOperatorWatcher struct {
+	client.Client
+	Log    logr.Logger
+	Scheme *runtime.Scheme
+}
+
+var localVolumeNamespace = ""
+var storageClassName = ""
 
 //+kubebuilder:rbac:groups=cache.example.com,resources=localoperators,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=cache.example.com,resources=localoperators/status,verbs=get;update;patch
@@ -144,6 +157,193 @@ func (r *LocalOperatorReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, err
 	}
 
+	localVolumeNamespace = local_namespace
+
+	return ctrl.Result{}, nil
+}
+
+func (r *LocalOperatorWatcher) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	fmt.Println("In watcher", req.Namespace)
+
+	localoperator := &cachev1.LocalOperator{}
+	err := r.Get(ctx, req.NamespacedName, localoperator)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			fmt.Println("Namespace:", localVolumeNamespace)
+			fmt.Println("Doing Local Volume Cleaning!!!")
+
+			// Find PVC
+			pvclaim := []corev1.PersistentVolumeClaim{}
+			pvcList := &corev1.PersistentVolumeClaimList{}
+			err = r.List(ctx, pvcList)
+			if err != nil {
+				fmt.Print("Error in Getting PVC List")
+				return ctrl.Result{}, err
+			}
+			for _, pvc := range pvcList.Items {
+				if *pvc.Spec.StorageClassName == storageClassName {
+					pvclaim = append(pvclaim, pvc)
+					fmt.Println("PVC: ", pvc.Name)
+				}
+			}
+
+			r.patchPVC(pvclaim)
+
+			// POD Deletion
+			fmt.Println("POD")
+			podList := &corev1.PodList{}
+			err = r.List(ctx, podList)
+			if err != nil {
+				fmt.Print("Error in Getting Pod List")
+				return ctrl.Result{}, err
+			}
+			for _, pod := range podList.Items {
+				flag := false
+				for _, v := range pod.Spec.Volumes {
+					if v.VolumeSource.PersistentVolumeClaim != nil && v.VolumeSource.PersistentVolumeClaim.ClaimName != "" {
+						for _, pvc := range pvclaim {
+							if v.VolumeSource.PersistentVolumeClaim.ClaimName == pvc.Name {
+								flag = true
+								fmt.Println(pod.Name)
+								break
+							}
+						}
+					}
+				}
+				if flag {
+					err = r.Delete(ctx, &pod)
+					if err != nil {
+						fmt.Print("Error in Deleting Pod ", pod.Name)
+						return ctrl.Result{}, err
+					}
+				}
+			}
+			fmt.Println("PODs Deleted.....")
+
+			time.Sleep(time.Duration(20) * time.Second)
+
+			// PVC Deletion
+			for _, pvc := range pvclaim {
+				err = r.Delete(ctx, &pvc)
+				if err != nil {
+					fmt.Print("Error in Deleting PVC ", pvc.Name)
+					return ctrl.Result{}, err
+				}
+			}
+			fmt.Println("PVCs Deleted.....")
+
+			time.Sleep(time.Duration(20) * time.Second)
+
+			// LocalVolume Resource Deletion
+			lv := &localv1.LocalVolume{}
+			err = r.Get(ctx, types.NamespacedName{Name: LOCAl_VOLUME, Namespace: localVolumeNamespace}, lv)
+			if err != nil {
+				fmt.Print("Error in Getting LocalVolume")
+				return ctrl.Result{}, err
+			}
+
+			r.patchLocalVolume()
+
+			err = r.Delete(ctx, lv)
+			if err != nil {
+				fmt.Print("Error in Deleting LocalVolume", lv.Name)
+				return ctrl.Result{}, err
+			}
+			fmt.Println("LocalVolume Deleted.....")
+
+			// Find PVs
+			persistenceVolume := []corev1.PersistentVolume{}
+			labels := map[string]string{"storage.openshift.com/local-volume-owner-name": LOCAl_VOLUME, "storage.openshift.com/local-volume-owner-namespace": localVolumeNamespace}
+			pvList := &corev1.PersistentVolumeList{}
+			err = r.List(ctx, pvList)
+			if err != nil {
+				fmt.Print("Error in Getting PV List")
+				return ctrl.Result{}, err
+			}
+			for _, pv := range pvList.Items {
+				if reflect.DeepEqual(labels, pv.Labels) {
+					persistenceVolume = append(persistenceVolume, pv)
+					fmt.Println("PV", pv.Status.Phase)
+				}
+			}
+
+			// PV Deletion
+			for _, pv := range persistenceVolume {
+				err = r.Delete(ctx, &pv)
+				if err != nil && !errors.IsNotFound(err) {
+					fmt.Print("Error in Deleting PV ", pv.Name)
+					return ctrl.Result{}, err
+				} else if err != nil {
+					fmt.Println("PV already deleted.....")
+				} else {
+					fmt.Println("PV Deleted.....")
+				}
+			}
+
+			time.Sleep(time.Duration(20) * time.Second)
+
+			//Remove Mounted Path
+			nodesList := &corev1.NodeList{}
+			err = r.List(ctx, nodesList)
+			if err != nil {
+				fmt.Print("Error in Getting Nodes List")
+				return ctrl.Result{}, err
+			}
+			r.deleteMountedPath(*nodesList)
+
+			// Subscription Deletion
+			sub := &v1alpha1.Subscription{}
+			err = r.Get(ctx, types.NamespacedName{Name: SUBSCRIPTION, Namespace: localVolumeNamespace}, sub)
+			if err != nil {
+				fmt.Print("Error in Getting Subscription")
+				return ctrl.Result{}, err
+			}
+			err = r.Delete(ctx, sub)
+			if err != nil {
+				fmt.Print("Error in Deleting Subscription", sub.Name)
+				return ctrl.Result{}, err
+			}
+			fmt.Println("Subscription Deleted.....")
+
+			// OperatorGroup Deletion
+			og := &v1.OperatorGroup{}
+			err = r.Get(ctx, types.NamespacedName{Name: OPERATOR_GROUP, Namespace: localVolumeNamespace}, og)
+			if err != nil {
+				fmt.Print("Error in Getting OperatorGroup")
+				return ctrl.Result{}, err
+			}
+			err = r.Delete(ctx, og)
+			if err != nil {
+				fmt.Print("Error in Deleting OperatorGroup", og.Name)
+				return ctrl.Result{}, err
+			}
+			fmt.Println("OperatorGroup Deleted.....")
+
+			// LocalStorageOperator Deletion
+			command := "kubectl delete deploy local-storage-operator -n " + localVolumeNamespace
+			_, out, _ := ExecuteCommand(command)
+			fmt.Println("out:", out)
+			fmt.Println("LocalVolumeOperator Deleted.....")
+
+			// Namespace Deletion
+			if localVolumeNamespace != req.Namespace {
+				ns := &corev1.Namespace{}
+				err = r.Get(ctx, types.NamespacedName{Name: localVolumeNamespace}, ns)
+				if err != nil {
+					fmt.Print("Error in Getting Namespace")
+					return ctrl.Result{}, err
+				}
+				err = r.Delete(ctx, ns)
+				if err != nil {
+					fmt.Print("Error in Deleting Namespace")
+					return ctrl.Result{}, err
+				}
+				fmt.Println("Namespace Deleted.....")
+			}
+
+			fmt.Println("Cleaning Done!!!")
+		}
+	}
 	return ctrl.Result{}, nil
 }
 
@@ -152,6 +352,13 @@ func (r *LocalOperatorReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&cachev1.LocalOperator{}).
 		Owns(&appsv1.Deployment{}).
+		Complete(r)
+}
+
+// SetupWithManager sets up the controller with the Manager.
+func (r *LocalOperatorWatcher) SetupWithManager(mgr ctrl.Manager) error {
+	return ctrl.NewControllerManagedBy(mgr).
+		For(&cachev1.LocalOperator{}).
 		Complete(r)
 }
 
@@ -205,6 +412,12 @@ func (r *LocalOperatorReconciler) subscriptionForLocalOperator(cr *cachev1.Local
 
 // localvolumeForLocalOperator returns LocalVolume object
 func (r *LocalOperatorReconciler) localvolumeForLocalOperator(cr *cachev1.LocalOperator) *localv1.LocalVolume {
+	if cr.Spec.VolumeMode == "Block" {
+		storageClassName = "sat-local-block-gold"
+	} else {
+		storageClassName = "sat-local-file-gold"
+	}
+
 	lv := &localv1.LocalVolume{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      LOCAl_VOLUME,
@@ -226,7 +439,7 @@ func (r *LocalOperatorReconciler) localvolumeForLocalOperator(cr *cachev1.LocalO
 			},
 			StorageClassDevices: []localv1.StorageClassDevice{
 				{
-					StorageClassName: cr.Spec.StorageClassName,
+					StorageClassName: storageClassName,
 					VolumeMode:       localv1.PersistentVolumeMode(cr.Spec.VolumeMode),
 					FSType:           cr.Spec.FSType,
 					DevicePaths: []string{
@@ -239,4 +452,30 @@ func (r *LocalOperatorReconciler) localvolumeForLocalOperator(cr *cachev1.LocalO
 	// Set LocalOperator instance as the owner and controller
 	ctrl.SetControllerReference(cr, lv, r.Scheme)
 	return lv
+}
+
+// patchPVC patches finalizer in PVC
+func (r *LocalOperatorWatcher) patchPVC(pvcs []corev1.PersistentVolumeClaim) {
+	for _, pvc := range pvcs {
+		command := "kubectl -n " + pvc.Namespace + " patch persistentvolumeclaim/" + pvc.Name + " -p '{\"metadata\":{\"finalizers\":[]}}' --type=merge"
+		_, out, _ := ExecuteCommand(command)
+		fmt.Println(out)
+	}
+}
+
+// patchLocalVolume patches finalizer in LocalVolume Resource
+func (r *LocalOperatorWatcher) patchLocalVolume() {
+	command := "kubectl patch --type=merge -n " + localVolumeNamespace + " localvolumes.local.storage.openshift.io " + LOCAl_VOLUME + " -p '{\"metadata\":{\"finalizers\":null}}'"
+	_, out, _ := ExecuteCommand(command)
+	fmt.Println(out)
+}
+
+// deleteMountedPath deletes mounted path from each node
+func (r *LocalOperatorWatcher) deleteMountedPath(nodes corev1.NodeList) {
+	for _, node := range nodes.Items {
+		command := "oc debug node/" + node.Name + " -- chroot /host rm -rf /mnt"
+		_, out, _ := ExecuteCommand(command)
+		fmt.Println(out)
+	}
+	fmt.Println("Mounted Paths Removed....")
 }

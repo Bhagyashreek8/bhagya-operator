@@ -45,7 +45,7 @@ type HelmChartReconciler struct {
 	Scheme *runtime.Scheme
 }
 
-// HelmChartReconciler reconciles a HelmChart object
+// HelmChartWatcher reconciles a HelmChart object
 type HelmChartWatcher struct {
 	client.Client
 	Log    logr.Logger

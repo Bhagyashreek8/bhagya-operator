@@ -54,15 +54,12 @@ spec:
                 description: Foo is an example field of LocalOperator. Edit localoperator_types.go
                   to remove/update Foo string `json:"foo,omitempty"`
                 type: string
-              storageClassName:
-                type: string
               volumeMode:
                 type: string
             required:
             - devicePath
             - label
             - namespace
-            - storageClassName
             - volumeMode
             type: object
           status:

@@ -30,12 +30,11 @@ type LocalOperatorSpec struct {
 
 	// Foo is an example field of LocalOperator. Edit localoperator_types.go to remove/update
 	// Foo string `json:"foo,omitempty"`
-	Namespace        string    `json:"namespace"`
-	StorageClassName string    `json:"storageClassName"`
-	VolumeMode       string    `json:"volumeMode"`
-	Label            LabelType `json:"label"`
-	DevicePath       string    `json:"devicePath"`
-	FSType           string    `json:"fstype,omitempty"`
+	Namespace  string    `json:"namespace"`
+	VolumeMode string    `json:"volumeMode"`
+	Label      LabelType `json:"label"`
+	DevicePath string    `json:"devicePath"`
+	FSType     string    `json:"fstype,omitempty"`
 }
 
 type LabelType struct {

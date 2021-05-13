@@ -4,8 +4,7 @@ metadata:
   name: local-volume
 spec:
   # Add fields here
-  namespace: "local-storage02"
-  storageClassName: "sat-local-block-gold"
+  namespace: "local-storage"
   volumeMode: "Block"
   # volumeMode: "Filesystem"
   devicePath: "/dev/xvdc"
